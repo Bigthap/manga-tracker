@@ -35,7 +35,6 @@ You will need [Go](https://golang.org/) installed on your machine.
 
 ### 3. Open the Dashboard
 Navigate to [http://localhost:8264](http://localhost:8264) in your browser. 
-*(If you are using Tailscale, you can access this dashboard on your phone using your PC's Tailscale IP!)*
 
 ## ⚙️ Configuration
 You can add custom domains to track (e.g., specific scanlation sites) directly through the **Settings** menu on the Dashboard. The settings sync instantly to the Chrome extension.
