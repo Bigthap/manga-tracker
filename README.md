@@ -6,7 +6,6 @@ A premium, self-hosted Manga and Anime tracking system. It automatically interce
 
 - **Automated Tracking**: A lightweight Chrome Extension runs in the background and automatically updates your reading progress whenever you visit a manga or anime chapter page.
 - **Premium Dashboard**: A beautifully designed, native-app-like web dashboard (Deep Space Glass UI) that looks incredible on both Desktop and Mobile OLED screens.
-- **Mobile-Ready**: Fully responsive with a bottom navigation bar, making it perfect for reading in bed via a VPN like [Tailscale](https://tailscale.com/).
 - **Local Cover Caching**: Automatically fetches and caches manga cover images locally for lightning-fast loading times.
 - **Invisible Engine**: The Go backend runs silently in your Windows System Tray. No annoying console windows!
 - **Custom Domains**: Easily add your favorite unsupported manga sites directly from the dashboard settings.
