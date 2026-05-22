@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manga Tracker Setup</title>
+    <style>
+        body { font-family: sans-serif; width: 300px; padding: 10px; background: #0f172a; color: #fff; }
+        input { width: 100%; padding: 8px; margin-top: 10px; margin-bottom: 10px; background: #1e293b; color: white; border: 1px solid #334155; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 8px; background: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #4f46e5; }
+        #status { margin-top: 10px; font-size: 0.9em; color: #10b981; }
+    </style>
+</head>
+<body>
+    <h3>Manga Tracker</h3>
+    <p>Enter your API Key from the local dashboard:</p>
+    <input type="text" id="apiKey" placeholder="Paste API Key here">
+    <button id="saveBtn" style="margin-top: 15px;">Save & Connect</button>
+    <div id="status"></div>
+    <script src="popup.js"></script>
+</body>
+</html>

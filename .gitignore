@@ -1,0 +1,19 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
+
+# App Data
+config.json
+covers/
+
+# OS
+.DS_Store
+Thumbs.db
