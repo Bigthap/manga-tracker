@@ -232,31 +232,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             const pinIcon = m.isPinned ? '📌' : '📍';
             const pinClass = m.isPinned ? 'pinned' : '';
 
-            // Format time ago
+            // Format time as DD/MM/YYYY
             let timeStr = "";
             if (m.lastReadAt) {
                 const date = new Date(m.lastReadAt.replace(' ', 'T') + 'Z');
                 if (!isNaN(date)) {
-                    const seconds = Math.floor((new Date() - date) / 1000);
-                    let interval = seconds / 31536000;
-                    if (interval > 1) timeStr = Math.floor(interval) + " years ago";
-                    else {
-                        interval = seconds / 2592000;
-                        if (interval > 1) timeStr = Math.floor(interval) + " months ago";
-                        else {
-                            interval = seconds / 86400;
-                            if (interval > 1) timeStr = Math.floor(interval) + " days ago";
-                            else {
-                                interval = seconds / 3600;
-                                if (interval > 1) timeStr = Math.floor(interval) + " hrs ago";
-                                else {
-                                    interval = seconds / 60;
-                                    if (interval > 1) timeStr = Math.floor(interval) + " mins ago";
-                                    else timeStr = "Just now";
-                                }
-                            }
-                        }
-                    }
+                    const d = String(date.getDate()).padStart(2, '0');
+                    const mo = String(date.getMonth() + 1).padStart(2, '0');
+                    const y = date.getFullYear();
+                    timeStr = `${d}/${mo}/${y}`;
                 }
             }
 
