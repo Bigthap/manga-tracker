@@ -252,8 +252,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </a>
                 
                 <div class="card-actions">
-                    <button class="action-btn ${pinClass}" onclick="pinManga(${m.id})" title="Pin/Unpin">${pinIcon}</button>
-                    <button class="action-btn delete-btn" onclick="deleteManga(${m.id}, '${m.title.replace(/'/g, "\\'")}')" title="Delete">🗑️</button>
+                    <button class="action-btn ${pinClass}" onclick="pinManga(${m.id}, this)" title="Pin/Unpin">${pinIcon}</button>
+                    <button class="action-btn delete-btn" onclick="deleteManga(${m.id}, '${m.title.replace(/'/g, "\\'")}', this)" title="Delete">🗑️</button>
                 </div>
 
                 <div class="card-overlay">
@@ -272,28 +272,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    window.pinManga = async (id) => {
+    window.pinManga = async (id, btnElement) => {
+        const card = btnElement.closest('.manga-card');
+        
+        // Add sword element
+        const sword = document.createElement('div');
+        sword.innerHTML = '🗡️';
+        sword.className = 'sword-element';
+        card.appendChild(sword);
+        
+        // Trigger stab animation
+        card.classList.add('stab-animation', 'card-shake');
+        
         try {
             await fetch('/api/pin', {
                 method: 'POST',
                 body: JSON.stringify({id: id})
             });
-            loadManga();
+            // Wait for animation to finish before reloading
+            setTimeout(() => {
+                loadManga();
+            }, 600);
         } catch (e) {
             console.error(e);
+            loadManga();
         }
     };
 
-    window.deleteManga = async (id, title) => {
+    window.deleteManga = async (id, title, btnElement) => {
         if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+        
+        const card = btnElement.closest('.manga-card');
+        
+        // Add slash element
+        const slash = document.createElement('div');
+        slash.className = 'slash-element';
+        card.appendChild(slash);
+        
+        // Trigger slash and fade animation
+        card.classList.add('slash-animation', 'flash-effect');
+        setTimeout(() => {
+            card.classList.add('fade-away');
+        }, 150); // fade shortly after slash starts
+        
         try {
             await fetch('/api/delete', {
                 method: 'POST',
                 body: JSON.stringify({id: id})
             });
-            loadManga();
+            // Wait for animation to finish before reloading
+            setTimeout(() => {
+                loadManga();
+            }, 600);
         } catch (e) {
             console.error(e);
+            loadManga();
         }
     };
 

@@ -440,3 +440,77 @@ header {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Custom Animations */
+.sword-element {
+    position: absolute;
+    top: -100px;
+    right: 15px;
+    font-size: 3rem;
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+.stab-animation .sword-element {
+    animation: stabIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+@keyframes stabIn {
+    0% { transform: translateY(-100px) rotate(135deg); opacity: 0; }
+    40% { transform: translateY(40px) rotate(135deg); opacity: 1; }
+    50% { transform: translateY(60px) rotate(135deg); opacity: 1; }
+    60% { transform: translateY(40px) rotate(135deg); opacity: 1; }
+    100% { transform: translateY(50px) rotate(135deg); opacity: 1; }
+}
+
+.card-shake {
+    animation: cardShake 0.4s ease-in-out forwards;
+    animation-delay: 0.2s; /* start shake when sword hits */
+}
+@keyframes cardShake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    40% { transform: translate(3px, 2px) rotate(0deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    80% { transform: translate(3px, 1px) rotate(-1deg); }
+    100% { transform: translate(0px, 0px) rotate(0deg); }
+}
+
+.slash-element {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 4px;
+    background: #fff;
+    box-shadow: 0 0 10px #fff, 0 0 20px #0ff;
+    transform-origin: center;
+    transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
+    z-index: 30;
+    pointer-events: none;
+}
+.slash-animation .slash-element {
+    animation: slashAction 0.3s ease-out forwards;
+}
+@keyframes slashAction {
+    0% { transform: translate(-50%, -50%) rotate(-45deg) scaleX(0); opacity: 1; }
+    50% { transform: translate(-50%, -50%) rotate(-45deg) scaleX(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(-45deg) scaleX(1); opacity: 0; }
+}
+
+.fade-away {
+    animation: fadeAway 0.5s forwards;
+}
+@keyframes fadeAway {
+    0% { opacity: 1; transform: scale(1); filter: brightness(1); }
+    100% { opacity: 0; transform: scale(0.8); filter: brightness(0); }
+}
+
+.flash-effect {
+    animation: flash 0.3s;
+}
+@keyframes flash {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(3) contrast(2); }
+    100% { filter: brightness(1); }
+}
