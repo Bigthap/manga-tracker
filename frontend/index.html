@@ -53,7 +53,10 @@
                 <div class="settings-card glass" style="margin-bottom: 20px;">
                     <h2>Web Manga Filters</h2>
                     <p style="margin-top: 10px; opacity: 0.8;">The tracker automatically detects sites with "manga" or "anime" in the URL. For other sites (e.g. kurotoon.com), add them here.</p>
-                    <textarea id="settingsCustomDomains" placeholder="e.g. kurotoon.com, asura.gg" rows="3" class="search-input glass" style="width: 100%; margin-top: 10px; resize: vertical;"></textarea>
+                    <div class="tag-input-wrapper glass search-input" style="width: 100%; margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; min-height: 50px; align-items: center;">
+                        <div id="domain-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                        <input type="text" id="domain-input" placeholder="Paste URL or type domain, then press Enter..." style="border: none; background: transparent; outline: none; color: inherit; flex-grow: 1; min-width: 250px;">
+                    </div>
                     <button id="saveSettingsBtn" class="btn btn-primary" style="margin-top: 15px; padding: 10px 20px; border-radius: 8px; border: none; background: #6366f1; color: white; cursor: pointer;">Save Settings</button>
                     <span id="saveStatus" style="margin-left: 10px; color: #10b981; opacity: 0; transition: opacity 0.3s;">Saved!</span>
                 </div>

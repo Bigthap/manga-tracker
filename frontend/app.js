@@ -62,7 +62,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('api-key-instruction').innerText = appConfig.api_key;
             
             if (appConfig.custom_domains) {
-                document.getElementById('settingsCustomDomains').value = appConfig.custom_domains.join(', ');
+                customDomains = appConfig.custom_domains;
+                renderTags();
             }
         } catch(e) {
             console.error("Failed to load config", e);
@@ -72,19 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let allMangas = [];
 
     document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
-        const domainsRaw = document.getElementById('settingsCustomDomains').value;
-        const domainsArray = domainsRaw.split(',').map(s => {
-            let domain = s.trim().toLowerCase();
-            if (domain) {
-                try {
-                    // This automatically converts Thai/IDN domains to Punycode (xn--...)
-                    domain = new URL('http://' + domain).hostname;
-                } catch(e) {}
-            }
-            return domain;
-        }).filter(s => s);
-        
-        appConfig.custom_domains = domainsArray;
+        appConfig.custom_domains = customDomains;
 
         try {
             const res = await fetch('/api/config', {
@@ -104,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Notify extension to update its storage instantly
                 window.postMessage({
                     action: "UPDATE_CUSTOM_DOMAINS",
-                    domains: domainsArray
+                    domains: customDomains
                 }, "*");
             } else {
                 alert("Failed to save settings");
@@ -114,6 +103,73 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert("Error saving settings");
         }
     });
+
+    // --- Domain Tag Input Logic ---
+    let customDomains = [];
+    const domainTagsContainer = document.getElementById('domain-tags');
+    const domainInput = document.getElementById('domain-input');
+
+    function renderTags() {
+        domainTagsContainer.innerHTML = '';
+        customDomains.forEach((domain, index) => {
+            const tag = document.createElement('div');
+            tag.style.cssText = 'background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.5); padding: 4px 10px; border-radius: 16px; display: flex; align-items: center; gap: 6px; font-size: 0.9em;';
+            
+            const text = document.createElement('span');
+            text.textContent = domain;
+            
+            const removeBtn = document.createElement('span');
+            removeBtn.textContent = '×';
+            removeBtn.style.cssText = 'cursor: pointer; font-weight: bold; color: #ef4444; margin-left: 4px;';
+            removeBtn.onclick = () => {
+                customDomains.splice(index, 1);
+                renderTags();
+            };
+
+            tag.appendChild(text);
+            tag.appendChild(removeBtn);
+            domainTagsContainer.appendChild(tag);
+        });
+    }
+
+    function addDomain(inputVal) {
+        let val = inputVal.trim().toLowerCase();
+        if (!val) return;
+        
+        try {
+            // If the user pastes a full URL (e.g. https://kurotoon.com/read/...)
+            // new URL() will extract just the hostname.
+            // If they just type "kurotoon.com", we prepend http:// so new URL can parse it
+            const urlObj = val.startsWith('http') ? new URL(val) : new URL('http://' + val);
+            let hostname = urlObj.hostname;
+            
+            if (hostname && !customDomains.includes(hostname)) {
+                customDomains.push(hostname);
+                renderTags();
+            }
+        } catch(e) {
+            console.error("Invalid URL/Domain", e);
+        }
+    }
+
+    domainInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addDomain(domainInput.value);
+            domainInput.value = '';
+        }
+    });
+
+    domainInput.addEventListener('paste', (e) => {
+        // Optional: wait for paste to complete, then process it automatically
+        setTimeout(() => {
+            if (domainInput.value.includes('http') || domainInput.value.includes('/')) {
+                addDomain(domainInput.value);
+                domainInput.value = '';
+            }
+        }, 50);
+    });
+    // ------------------------------
 
     // Search functionality
     document.getElementById('search-input').addEventListener('input', (e) => {
