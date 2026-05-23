@@ -121,7 +121,7 @@ async function extractData() {
     }
 
     // 1. URL Parse Fallback setup
-    const urlMatch = url.match(/\/([a-z0-9%_\-\s]+?)[_\-\s](?:chapter|ตอนที่|ch|ep)?[_\-\s]?(\d+(?:\.\d+)?)\/?$/i);
+    const urlMatch = url.match(/\/([a-z0-9%_\-\s]+?)[_\-\s\/](?:chapter|ตอนที่|ch|ep)?[_\-\s\/]?(\d+(?:\.\d+)?)\/?$/i);
     if (urlMatch) {
         slug = urlMatch[1];
         chapter = urlMatch[2];
