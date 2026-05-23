@@ -39,6 +39,12 @@ Navigate to [http://localhost:8264](http://localhost:8264) in your browser.
 ## ⚙️ Configuration
 You can add custom domains to track (e.g., specific scanlation sites) directly through the **Settings** menu on the Dashboard. The settings sync instantly to the Chrome extension.
 
+## 🔄 How to Update
+If you downloaded or cloned this project from GitHub and want to pull the latest features/fixes:
+1. Simply double-click the `update.bat` file in the project folder.
+2. The script will automatically download the latest code and rebuild the server.
+3. **Important:** Go to `chrome://extensions/`, find Manga Tracker, and click the **Refresh** icon to update the extension code in your browser.
+
 ## 💻 Tech Stack
 - **Backend**: Go (Golang), `mattn/go-sqlite3`, `getlantern/systray`
 - **Frontend**: Vanilla HTML/CSS/JS (Zero framework, pure performance)
