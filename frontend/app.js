@@ -355,8 +355,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Sword & Shockwave elements
             const sword = document.createElement('div');
-            sword.innerHTML = '🗡️';
-            sword.className = 'holy-sword';
+            sword.className = 'holy-sword-wrapper';
+            sword.innerHTML = `
+                <div class="sword-handle"></div>
+                <div class="sword-guard"></div>
+                <div class="sword-blade"></div>
+            `;
             
             const shockwave = document.createElement('div');
             shockwave.className = 'holy-shockwave';
