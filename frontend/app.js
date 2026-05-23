@@ -73,7 +73,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
         const domainsRaw = document.getElementById('settingsCustomDomains').value;
-        const domainsArray = domainsRaw.split(',').map(s => s.trim().toLowerCase()).filter(s => s);
+        const domainsArray = domainsRaw.split(',').map(s => {
+            let domain = s.trim().toLowerCase();
+            if (domain) {
+                try {
+                    // This automatically converts Thai/IDN domains to Punycode (xn--...)
+                    domain = new URL('http://' + domain).hostname;
+                } catch(e) {}
+            }
+            return domain;
+        }).filter(s => s);
         
         appConfig.custom_domains = domainsArray;
 
