@@ -223,7 +223,8 @@ async function extractData() {
                     '.thumb img', 
                     '.imgholder img', 
                     '.comic-cover img',
-                    '.ts-post-image'
+                    '.ts-post-image',
+                    'img[class*="object-cover"][class*="shadow-lg"]'
                 ];
 
                 let thumb = null;
@@ -267,7 +268,8 @@ async function extractData() {
                 '.thumb img', 
                 '.imgholder img', 
                 '.comic-cover img',
-                '.ts-post-image'
+                '.ts-post-image',
+                'img[class*="object-cover"][class*="shadow-lg"]'
             ];
 
             let thumb = null;
