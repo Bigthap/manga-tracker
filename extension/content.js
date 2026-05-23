@@ -8,6 +8,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Listen for updates from the Dashboard UI
 window.addEventListener("message", (event) => {
+    // Protect against "Extension context invalidated" errors
+    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.runtime) return;
+
     if (event.data && event.data.action === "UPDATE_CUSTOM_DOMAINS") {
         chrome.storage.local.set({ customDomains: event.data.domains.join(',') }, () => {
             console.log("Manga Tracker: Custom domains updated from dashboard!", event.data.domains);
