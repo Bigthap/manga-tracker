@@ -118,6 +118,23 @@ async function extractData() {
         if (thumbEl) {
             imgUrl = thumbEl.src;
         }
+    } else if (hostname.includes("readtoon.com")) {
+        // e.g. https://readtoon.com/content/the-legendary-mechanic/1
+        const parts = url.split('?')[0].replace(/\/$/, '').split('/');
+        if (parts.includes("content") && parts.length >= 5) {
+            const contentIndex = parts.indexOf("content");
+            slug = parts[contentIndex + 1];
+            chapter = parts[contentIndex + 2];
+            mainUrl = `${window.location.origin}/content/${slug}`;
+            
+            // Extract title from chapter title if possible
+            const h1 = document.querySelector('h1');
+            if (h1) {
+                title = h1.innerText.replace(chapter, '').trim();
+            } else {
+                title = document.title.split('|')[0].trim();
+            }
+        }
     }
 
     // 1. URL Parse Fallback setup
@@ -224,7 +241,8 @@ async function extractData() {
                     '.imgholder img', 
                     '.comic-cover img',
                     '.ts-post-image',
-                    'img[class*="object-cover"][class*="shadow-lg"]'
+                    'img[class*="object-cover"][class*="shadow-lg"]',
+                    'img[src*="nobuild.pro"]'
                 ];
 
                 let thumb = null;
@@ -269,7 +287,8 @@ async function extractData() {
                 '.imgholder img', 
                 '.comic-cover img',
                 '.ts-post-image',
-                'img[class*="object-cover"][class*="shadow-lg"]'
+                'img[class*="object-cover"][class*="shadow-lg"]',
+                'img[src*="nobuild.pro"]'
             ];
 
             let thumb = null;
