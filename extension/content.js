@@ -88,6 +88,33 @@ async function extractData() {
                 imgUrl = `https://www.osemocphoto.com/collectManga/${slug}/${slug}_cover.jpg`;
             }
         }
+    } else if (hostname.includes("anime-seven.com")) {
+        // e.g. https://www.anime-seven.com/play/228851/...
+        if (url.includes('/play/')) {
+            const titleEl = document.querySelector('.panel-heading .panel-title');
+            if (titleEl) {
+                const fullText = titleEl.innerText.replace(/&nbsp;/g, ' ').trim();
+                const match = fullText.match(/(.*?)\s*ตอนที่\s*(\d+(?:\.\d+)?)/i);
+                if (match) {
+                    title = match[1].trim();
+                    chapter = match[2];
+                } else {
+                    title = fullText;
+                }
+            }
+            
+            // Try to find mainUrl from breadcrumbs or links
+            const mainLink = document.querySelector('a[href^="https://www.anime-seven.com/"][href$="/"]');
+            if (mainLink && mainLink.href.match(/\/\d+\/$/)) {
+                mainUrl = mainLink.href;
+            }
+        }
+        
+        // Try to get image if it's on the page
+        const thumbEl = document.querySelector('img.thumbnail.img-responsive');
+        if (thumbEl) {
+            imgUrl = thumbEl.src;
+        }
     }
 
     // 1. URL Parse Fallback setup
