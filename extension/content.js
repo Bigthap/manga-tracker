@@ -26,7 +26,7 @@ async function scanAndTrack() {
         }
 
         const hostname = window.location.hostname.toLowerCase();
-        let shouldRun = hostname.includes('manga') || hostname.includes('anime');
+        let shouldRun = hostname.includes('manga') || hostname.includes('anime') || hostname.includes('nekopost.net');
         
         if (!shouldRun) {
             const storage = await chrome.storage.local.get('customDomains');
@@ -65,6 +65,30 @@ async function extractData() {
     let chapter = "";
     let slug = "";
     let mainUrl = "";
+    let imgUrl = "";
+
+    // 0. Specific Site Handlers
+    if (hostname.includes("nekopost.net")) {
+        const parts = url.split('?')[0].split('/');
+        if (parts.includes("manga") || parts.includes("novel") || parts.includes("doujin")) {
+            const typeIndex = parts.findIndex(p => p === "manga" || p === "novel" || p === "doujin");
+            if (typeIndex !== -1 && parts.length > typeIndex + 2) {
+                slug = parts[typeIndex + 1];
+                chapter = parts[typeIndex + 2];
+                mainUrl = `https://www.nekopost.net/project/${slug}`;
+                
+                const titleEl = document.querySelector('a[href*="/project/"]');
+                if (titleEl) {
+                    title = titleEl.innerText.trim();
+                } else {
+                    title = `Nekopost Project ${slug}`; // Fallback
+                }
+                
+                // Nekopost usually uses this CDN format
+                imgUrl = `https://www.osemocphoto.com/collectManga/${slug}/${slug}_cover.jpg`;
+            }
+        }
+    }
 
     // 1. URL Parse Fallback setup
     const urlMatch = url.match(/\/([a-z0-9%_\-\s]+?)[_\-\s](?:chapter|ตอนที่|ch|ep)?[_\-\s]?(\d+(?:\.\d+)?)\/?$/i);
@@ -141,10 +165,8 @@ async function extractData() {
 
     if (!title || !chapter) return null;
 
-    let imgUrl = "";
-
-    // Fetch Main Page to get True Cover
-    if (mainUrl) {
+    // Fetch Main Page to get True Cover (Skip if already found by specific handler)
+    if (mainUrl && !imgUrl) {
         try {
             let fetchUrl = mainUrl;
             try {
