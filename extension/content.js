@@ -304,6 +304,23 @@ async function extractData() {
         }
     }
 
+    let coverBase64 = "";
+    if (imgUrl && hostname.includes("readtoon.com")) {
+        try {
+            const imgRes = await fetch(imgUrl);
+            if (imgRes.ok) {
+                const blob = await imgRes.blob();
+                coverBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            }
+        } catch(e) {
+            console.warn("Failed to fetch cover base64 in content script", e);
+        }
+    }
+
     return {
         title: title,
         slug: slug,
@@ -313,6 +330,7 @@ async function extractData() {
         chapterTitle: document.title,
         chapterUrl: rawUrl,
         coverUrl: imgUrl,
+        coverBase64: coverBase64,
         sortKey: generateSortKey(chapter)
     };
 }
