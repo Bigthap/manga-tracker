@@ -26,7 +26,7 @@ async function scanAndTrack() {
         }
 
         const hostname = window.location.hostname.toLowerCase();
-        let shouldRun = hostname.includes('manga') || hostname.includes('anime') || hostname.includes('nekopost.net');
+        let shouldRun = hostname.includes('manga') || hostname.includes('anime') || hostname.includes('nekopost.net') || hostname.includes('read') || hostname.includes('toon');
         
         if (!shouldRun) {
             const storage = await chrome.storage.local.get('customDomains');
