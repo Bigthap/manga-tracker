@@ -500,27 +500,21 @@ header {
     height: var(--start-height);
     z-index: 1001;
     perspective: 1000px;
-    /* Move to center */
-    animation: moveToCenter 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
+    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-@keyframes moveToCenter {
-    100% {
-        left: var(--target-left);
-        top: var(--target-top);
-        width: var(--target-width);
-        height: var(--target-height);
-        box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
-    }
+.delete-focus-wrapper.is-centered {
+    left: var(--target-left);
+    top: var(--target-top);
+    width: var(--target-width);
+    height: var(--target-height);
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
 }
 
 .delete-focus-wrapper.is-splitting {
-    animation: fadeShadow 2.0s forwards;
-}
-
-@keyframes fadeShadow {
-    0% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.5); }
-    100% { box-shadow: 0 0 0px rgba(255, 0, 0, 0); }
+    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
+    transition-duration: 1.5s;
 }
 
 .delete-card-piece {

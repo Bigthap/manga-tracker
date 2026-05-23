@@ -369,6 +369,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         overlay.appendChild(wrapper);
 
+        // Force reflow and start transition
+        wrapper.offsetHeight;
+        wrapper.classList.add('is-centered');
+
         // Helper for animation wait
         const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
