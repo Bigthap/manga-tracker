@@ -70,7 +70,12 @@ async function extractData() {
     let mainUrl = "";
     let imgUrl = "";
 
-    // 0. Specific Site Handlers
+    // 0. Explicit Exclusions (Do not track main pages)
+    if (hostname.includes("nekopost.net") && url.includes("/project/")) {
+        return null;
+    }
+
+    // 0.1 Specific Site Handlers
     if (hostname.includes("nekopost.net")) {
         const parts = url.split('?')[0].split('/');
         if (parts.includes("manga") || parts.includes("novel") || parts.includes("doujin")) {
