@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         mangas.forEach((m, index) => {
             const card = document.createElement('div');
             card.className = `manga-card glass ${m.isPinned ? 'pinned-state' : ''}`;
+            card.dataset.id = m.id;
             
             const defaultCover = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="100%" height="100%" fill="#1e293b"/><text x="50%" y="50%" fill="#94a3b8" font-family="sans-serif" font-size="14" text-anchor="middle">No Cover</text></svg>');
             const coverSrc = m.coverPath ? m.coverPath : defaultCover;
@@ -272,6 +273,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function reorderGrid() {
+        allMangas.sort((a, b) => {
+            if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+            return new Date(b.lastReadAt || 0) - new Date(a.lastReadAt || 0);
+        });
+        
+        const grid = document.getElementById('manga-grid');
+        const query = document.getElementById('search-input').value.toLowerCase();
+        let displayMangas = allMangas;
+        if (query) {
+            displayMangas = allMangas.filter(m => m.title.toLowerCase().includes(query) || m.source.toLowerCase().includes(query));
+        }
+        
+        displayMangas.forEach(manga => {
+            const el = grid.querySelector(`.manga-card[data-id="${manga.id}"]`);
+            if (el) {
+                grid.appendChild(el);
+            }
+        });
+    }
+
     window.pinManga = async (id, btnElement) => {
         const card = btnElement.closest('.manga-card');
         if (!card || card.dataset.isPinAnimating === "true") return;
@@ -299,6 +321,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Update local state
                 const m = allMangas.find(x => x.id === id);
                 if (m) m.isPinned = isNowPinned;
+                
+                reorderGrid();
                 
             } catch (e) {
                 console.error(e);
@@ -399,6 +423,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Update local state without full reload
             const m = allMangas.find(x => x.id === id);
             if (m) m.isPinned = true;
+            
+            reorderGrid();
             
         } catch (e) {
             console.error(e);
