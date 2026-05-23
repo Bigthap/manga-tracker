@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         mangas.forEach((m, index) => {
             const card = document.createElement('div');
-            card.className = 'manga-card glass';
+            card.className = `manga-card glass ${m.isPinned ? 'pinned-state' : ''}`;
             
             const defaultCover = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="100%" height="100%" fill="#1e293b"/><text x="50%" y="50%" fill="#94a3b8" font-family="sans-serif" font-size="14" text-anchor="middle">No Cover</text></svg>');
             const coverSrc = m.coverPath ? m.coverPath : defaultCover;
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </a>
                 
                 <div class="card-actions">
-                    <button class="action-btn ${pinClass}" onclick="pinManga(${m.id}, this)" title="Pin/Unpin">${pinIcon}</button>
+                    <button class="action-btn pin-btn ${pinClass}" onclick="window.pinManga(${m.id}, this)" title="Pin/Unpin">${pinIcon}</button>
                     <button class="action-btn delete-btn" onclick="deleteManga(${m.id}, '${m.title.replace(/'/g, "\\'")}', this)" title="Delete">🗑️</button>
                 </div>
 
@@ -274,28 +274,136 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.pinManga = async (id, btnElement) => {
         const card = btnElement.closest('.manga-card');
+        if (!card || card.dataset.isPinAnimating === "true") return;
+
+        const isCurrentlyPinned = btnElement.classList.contains('pinned');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (isCurrentlyPinned || prefersReducedMotion) {
+            btnElement.disabled = true;
+            try {
+                const res = await fetch('/api/pin', { method: 'POST', body: JSON.stringify({id: id}) });
+                if (!res.ok) throw new Error("Pin API failed");
+                
+                const isNowPinned = !isCurrentlyPinned;
+                if (isNowPinned) {
+                    card.classList.add('pinned-state');
+                    btnElement.classList.add('pinned');
+                    btnElement.textContent = '📌';
+                } else {
+                    card.classList.remove('pinned-state');
+                    btnElement.classList.remove('pinned');
+                    btnElement.textContent = '📍';
+                }
+                
+                // Update local state
+                const m = allMangas.find(x => x.id === id);
+                if (m) m.isPinned = isNowPinned;
+                
+            } catch (e) {
+                console.error(e);
+                alert("Failed to update pin state");
+            } finally {
+                btnElement.disabled = false;
+            }
+            return;
+        }
+
+        // --- Grand Pin Animation ---
+        card.dataset.isPinAnimating = "true";
+        btnElement.disabled = true;
+
+        const rect = card.getBoundingClientRect();
+        card.style.opacity = '0'; // Hide original card temporarily
+
+        const overlay = document.createElement('div');
+        overlay.className = 'pin-overlay';
+        document.body.appendChild(overlay);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pin-focus-wrapper';
+        wrapper.style.setProperty('--start-left', `${rect.left}px`);
+        wrapper.style.setProperty('--start-top', `${rect.top}px`);
+        wrapper.style.setProperty('--start-width', `${rect.width}px`);
+        wrapper.style.setProperty('--start-height', `${rect.height}px`);
         
-        // Add sword element
-        const sword = document.createElement('div');
-        sword.innerHTML = '🗡️';
-        sword.className = 'sword-element';
-        card.appendChild(sword);
+        const clone = card.cloneNode(true);
+        clone.style.opacity = '1';
+        clone.style.position = 'relative';
+        clone.style.margin = '0';
+        clone.style.width = '100%';
+        clone.style.height = '100%';
+        clone.style.transform = 'none'; // reset any scaling
         
-        // Trigger stab animation
-        card.classList.add('stab-animation', 'card-shake');
-        
+        // Remove interactive elements in clone
+        clone.querySelectorAll('button, a').forEach(el => {
+            el.onclick = null;
+            el.style.pointerEvents = 'none';
+        });
+
+        wrapper.appendChild(clone);
+        overlay.appendChild(wrapper);
+
+        // Force reflow and add focus scale
+        wrapper.offsetHeight;
+        wrapper.classList.add('is-focused');
+
+        const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
         try {
-            await fetch('/api/pin', {
+            await wait(400); // Wait for scale up
+            
+            // Sword & Shockwave elements
+            const sword = document.createElement('div');
+            sword.innerHTML = '🗡️';
+            sword.className = 'holy-sword';
+            
+            const shockwave = document.createElement('div');
+            shockwave.className = 'holy-shockwave';
+            
+            wrapper.appendChild(sword);
+            wrapper.appendChild(shockwave);
+            
+            wrapper.classList.add('is-striking');
+            clone.classList.add('card-impact-shake', 'flash-impact');
+            
+            // Call API during impact
+            const res = await fetch('/api/pin', {
                 method: 'POST',
                 body: JSON.stringify({id: id})
             });
-            // Wait for animation to finish before reloading
-            setTimeout(() => {
-                loadManga();
-            }, 600);
+            
+            if (!res.ok) throw new Error("Pin API failed");
+
+            // Wait for impact animations (strike is 0.4s + shockwave 0.6s)
+            await wait(1000); 
+
+            // Add chains visually to the clone first
+            clone.classList.add('pinned-state');
+            clone.querySelector('.pin-btn').classList.add('pinned');
+            clone.querySelector('.pin-btn').textContent = '📌';
+            
+            await wait(400); // Let user see the chained card
+
+            // Cleanup & Update Original
+            overlay.remove();
+            card.style.opacity = '1';
+            card.classList.add('pinned-state');
+            btnElement.classList.add('pinned');
+            btnElement.textContent = '📌';
+            
+            // Update local state without full reload
+            const m = allMangas.find(x => x.id === id);
+            if (m) m.isPinned = true;
+            
         } catch (e) {
             console.error(e);
-            loadManga();
+            overlay.remove();
+            card.style.opacity = '1';
+            alert("Failed to pin manga");
+        } finally {
+            card.dataset.isPinAnimating = "false";
+            btnElement.disabled = false;
         }
     };
 
