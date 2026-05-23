@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Format time as DD/MM/YYYY
             let timeStr = "";
             if (m.lastReadAt) {
-                const date = new Date(m.lastReadAt.replace(' ', 'T') + 'Z');
+                const date = new Date(m.lastReadAt);
                 if (!isNaN(date)) {
                     const d = String(date.getDate()).padStart(2, '0');
                     const mo = String(date.getMonth() + 1).padStart(2, '0');
