@@ -282,5 +282,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    // Auto-refresh when switching back to this tab
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && document.getElementById('library-view').classList.contains('active')) {
+            loadManga();
+        }
+    });
+
     loadManga();
 });
