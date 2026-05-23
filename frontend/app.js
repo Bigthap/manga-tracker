@@ -232,6 +232,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             const pinIcon = m.isPinned ? '📌' : '📍';
             const pinClass = m.isPinned ? 'pinned' : '';
 
+            // Format time ago
+            let timeStr = "";
+            if (m.lastReadAt) {
+                const date = new Date(m.lastReadAt.replace(' ', 'T') + 'Z');
+                if (!isNaN(date)) {
+                    const seconds = Math.floor((new Date() - date) / 1000);
+                    let interval = seconds / 31536000;
+                    if (interval > 1) timeStr = Math.floor(interval) + " years ago";
+                    else {
+                        interval = seconds / 2592000;
+                        if (interval > 1) timeStr = Math.floor(interval) + " months ago";
+                        else {
+                            interval = seconds / 86400;
+                            if (interval > 1) timeStr = Math.floor(interval) + " days ago";
+                            else {
+                                interval = seconds / 3600;
+                                if (interval > 1) timeStr = Math.floor(interval) + " hrs ago";
+                                else {
+                                    interval = seconds / 60;
+                                    if (interval > 1) timeStr = Math.floor(interval) + " mins ago";
+                                    else timeStr = "Just now";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             card.innerHTML = `
                 <img src="${coverSrc}" class="manga-cover" alt="Cover" loading="lazy" onerror="this.src='${defaultCover}'">
                 
@@ -245,7 +273,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
 
                 <div class="card-overlay">
-                    <div class="manga-source">${m.source}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="manga-source">${m.source}</div>
+                        ${timeStr ? `<div style="font-size: 0.7em; opacity: 0.7; background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 10px;">🕒 ${timeStr}</div>` : ''}
+                    </div>
                     <div class="manga-title" title="${m.title}">${m.title}</div>
                     <div class="manga-chapter">${displayChap}</div>
                 </div>
