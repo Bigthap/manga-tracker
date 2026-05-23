@@ -501,7 +501,7 @@ header {
     z-index: 1001;
     perspective: 1000px;
     /* Move to center */
-    animation: moveToCenter 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation: moveToCenter 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 @keyframes moveToCenter {
@@ -512,6 +512,15 @@ header {
         height: var(--target-height);
         box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
     }
+}
+
+.delete-focus-wrapper.is-splitting {
+    animation: fadeShadow 2.0s forwards;
+}
+
+@keyframes fadeShadow {
+    0% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.5); }
+    100% { box-shadow: 0 0 0px rgba(255, 0, 0, 0); }
 }
 
 .delete-card-piece {
@@ -533,11 +542,11 @@ header {
 }
 
 .is-splitting .delete-card-piece.top-left {
-    animation: fallDownTopHalf 0.8s cubic-bezier(0.5, 0, 1, 0.5) forwards;
+    animation: fallDownTopHalf 1.5s cubic-bezier(0.5, 0, 1, 0.5) forwards;
 }
 
 .is-splitting .delete-card-piece.bottom-right {
-    animation: fallDownBottomHalf 0.8s cubic-bezier(0.5, 0, 1, 0.5) forwards;
+    animation: fallDownBottomHalf 1.5s cubic-bezier(0.5, 0, 1, 0.5) forwards;
 }
 
 @keyframes fallDownTopHalf {

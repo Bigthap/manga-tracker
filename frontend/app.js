@@ -373,8 +373,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
         try {
-            // Wait for center animation (0.6s defined in css)
-            await wait(600);
+            // Wait for center animation (0.8s defined in css)
+            await wait(800);
 
             // Draw slash
             const slash = document.createElement('div');
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Split and fall
             wrapper.classList.add('is-splitting');
             
-            await wait(800); // Wait for fall down (0.8s)
+            await wait(1500); // Wait for fall down (1.5s)
 
             // Actual delete
             const res = await fetch('/api/delete', {
