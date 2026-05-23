@@ -303,30 +303,108 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
         
         const card = btnElement.closest('.manga-card');
+        if (!card || card.dataset.deleting === "true") return;
         
-        // Add slash element
-        const slash = document.createElement('div');
-        slash.className = 'slash-element';
-        card.appendChild(slash);
+        card.dataset.deleting = "true";
+        btnElement.disabled = true;
+
+        // Check for reduced motion
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (prefersReducedMotion) {
+            // Fallback quick delete
+            try {
+                await fetch('/api/delete', { method: 'POST', body: JSON.stringify({id: id}) });
+                loadManga();
+            } catch (e) {
+                console.error(e);
+                card.dataset.deleting = "false";
+                btnElement.disabled = false;
+            }
+            return;
+        }
+
+        const rect = card.getBoundingClientRect();
         
-        // Trigger slash and fade animation
-        card.classList.add('slash-animation', 'flash-effect');
-        setTimeout(() => {
-            card.classList.add('fade-away');
-        }, 150); // fade shortly after slash starts
+        // Calculate target size (preserve aspect ratio)
+        const targetWidth = Math.min(480, window.innerWidth * 0.88);
+        const targetHeight = Math.min(targetWidth * (rect.height / rect.width), window.innerHeight * 0.8);
+        const targetLeft = (window.innerWidth - targetWidth) / 2;
+        const targetTop = (window.innerHeight - targetHeight) / 2;
+
+        card.style.visibility = 'hidden';
+
+        const overlay = document.createElement('div');
+        overlay.className = 'delete-overlay';
+        document.body.appendChild(overlay);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'delete-focus-wrapper';
+        wrapper.style.setProperty('--start-left', `${rect.left}px`);
+        wrapper.style.setProperty('--start-top', `${rect.top}px`);
+        wrapper.style.setProperty('--start-width', `${rect.width}px`);
+        wrapper.style.setProperty('--start-height', `${rect.height}px`);
+        wrapper.style.setProperty('--target-left', `${targetLeft}px`);
+        wrapper.style.setProperty('--target-top', `${targetTop}px`);
+        wrapper.style.setProperty('--target-width', `${targetWidth}px`);
+        wrapper.style.setProperty('--target-height', `${targetHeight}px`);
         
+        // Create clones
+        const clone1 = card.cloneNode(true);
+        const clone2 = card.cloneNode(true);
+        
+        [clone1, clone2].forEach((c, idx) => {
+            c.style.visibility = 'visible';
+            c.style.position = 'absolute';
+            c.style.margin = '0';
+            c.style.transform = 'none';
+            c.className = `manga-card glass delete-card-piece ${idx === 0 ? 'top-left' : 'bottom-right'}`;
+            // Disable interactivity
+            c.querySelectorAll('button, a').forEach(el => {
+                el.onclick = null;
+                el.style.pointerEvents = 'none';
+            });
+            wrapper.appendChild(c);
+        });
+
+        overlay.appendChild(wrapper);
+
+        // Helper for animation wait
+        const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
         try {
-            await fetch('/api/delete', {
+            // Wait for center animation (0.6s defined in css)
+            await wait(600);
+
+            // Draw slash
+            const slash = document.createElement('div');
+            slash.className = 'delete-slash';
+            wrapper.appendChild(slash);
+            wrapper.classList.add('is-slashing');
+            
+            await wait(200); // Wait for slash (0.2s)
+
+            // Split and fall
+            wrapper.classList.add('is-splitting');
+            
+            await wait(800); // Wait for fall down (0.8s)
+
+            // Actual delete
+            const res = await fetch('/api/delete', {
                 method: 'POST',
                 body: JSON.stringify({id: id})
             });
-            // Wait for animation to finish before reloading
-            setTimeout(() => {
-                loadManga();
-            }, 600);
+            if (!res.ok) throw new Error("Delete failed");
+            
+            overlay.remove();
+            loadManga();
+            
         } catch (e) {
             console.error(e);
-            loadManga();
+            overlay.remove();
+            card.style.visibility = 'visible';
+            card.dataset.deleting = "false";
+            btnElement.disabled = false;
         }
     };
 

@@ -476,41 +476,110 @@ header {
     100% { transform: translate(0px, 0px) rotate(0deg); }
 }
 
-.slash-element {
+/* Dramatic Delete Animations */
+.delete-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    pointer-events: auto;
+    opacity: 0;
+    animation: fadeInOverlay 0.3s forwards;
+}
+
+@keyframes fadeInOverlay {
+    to { opacity: 1; }
+}
+
+.delete-focus-wrapper {
+    position: fixed;
+    /* CSS Variables injected by JS */
+    left: var(--start-left);
+    top: var(--start-top);
+    width: var(--start-width);
+    height: var(--start-height);
+    z-index: 1001;
+    perspective: 1000px;
+    /* Move to center */
+    animation: moveToCenter 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes moveToCenter {
+    100% {
+        left: var(--target-left);
+        top: var(--target-top);
+        width: var(--target-width);
+        height: var(--target-height);
+        box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
+    }
+}
+
+.delete-card-piece {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    will-change: transform, opacity, clip-path;
+    border-radius: var(--radius-md);
+}
+
+.delete-card-piece.top-left {
+    clip-path: polygon(0 0, 100% 0, 100% 40%, 0 60%);
+}
+
+.delete-card-piece.bottom-right {
+    clip-path: polygon(0 60%, 100% 40%, 100% 100%, 0 100%);
+}
+
+.is-splitting .delete-card-piece.top-left {
+    animation: fallDownTopHalf 0.8s cubic-bezier(0.5, 0, 1, 0.5) forwards;
+}
+
+.is-splitting .delete-card-piece.bottom-right {
+    animation: fallDownBottomHalf 0.8s cubic-bezier(0.5, 0, 1, 0.5) forwards;
+}
+
+@keyframes fallDownTopHalf {
+    0% { transform: translate(0, 0) rotate(0); opacity: 1; filter: brightness(2); }
+    20% { transform: translate(-20px, -20px) rotate(-5deg); opacity: 1; filter: brightness(1); }
+    100% { transform: translate(-100px, 100vh) rotate(-25deg); opacity: 0; filter: brightness(0); }
+}
+
+@keyframes fallDownBottomHalf {
+    0% { transform: translate(0, 0) rotate(0); opacity: 1; filter: brightness(2); }
+    20% { transform: translate(20px, 20px) rotate(5deg); opacity: 1; filter: brightness(1); }
+    100% { transform: translate(100px, 100vh) rotate(25deg); opacity: 0; filter: brightness(0); }
+}
+
+.delete-slash {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 200%;
-    height: 4px;
+    height: 6px;
     background: #fff;
-    box-shadow: 0 0 10px #fff, 0 0 20px #0ff;
+    box-shadow: 0 0 10px #fff, 0 0 30px #f00;
     transform-origin: center;
-    transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
+    transform: translate(-50%, -50%) rotate(-16deg) scaleX(0);
     z-index: 30;
     pointer-events: none;
-}
-.slash-animation .slash-element {
-    animation: slashAction 0.3s ease-out forwards;
-}
-@keyframes slashAction {
-    0% { transform: translate(-50%, -50%) rotate(-45deg) scaleX(0); opacity: 1; }
-    50% { transform: translate(-50%, -50%) rotate(-45deg) scaleX(1); opacity: 1; }
-    100% { transform: translate(-50%, -50%) rotate(-45deg) scaleX(1); opacity: 0; }
+    opacity: 0;
 }
 
-.fade-away {
-    animation: fadeAway 0.5s forwards;
-}
-@keyframes fadeAway {
-    0% { opacity: 1; transform: scale(1); filter: brightness(1); }
-    100% { opacity: 0; transform: scale(0.8); filter: brightness(0); }
+.is-slashing .delete-slash {
+    animation: drawDeleteSlash 0.2s ease-out forwards;
 }
 
-.flash-effect {
-    animation: flash 0.3s;
+@keyframes drawDeleteSlash {
+    0% { transform: translate(-50%, -50%) rotate(-16deg) scaleX(0); opacity: 1; }
+    50% { transform: translate(-50%, -50%) rotate(-16deg) scaleX(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(-16deg) scaleX(1); opacity: 0; }
 }
-@keyframes flash {
-    0% { filter: brightness(1); }
-    50% { filter: brightness(3) contrast(2); }
-    100% { filter: brightness(1); }
+
+@media (prefers-reduced-motion: reduce) {
+    .delete-overlay, .delete-focus-wrapper, .delete-card-piece, .delete-slash {
+        animation: none !important;
+        transition: none !important;
+    }
 }
