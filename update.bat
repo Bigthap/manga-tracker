@@ -15,7 +15,7 @@ echo.
 
 echo [2/3] Building the Go Server...
 echo Building Manga Tracker...
-go build -ldflags="-s -w -H=windowsgui" -o "Manga Tracker.exe"
+go build -ldflags="-s -w -H=windowsgui" -o manga-tracker.exe
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to build the server. Make sure Go is installed.
     pause
