@@ -1,4 +1,6 @@
+Set FSO = CreateObject("Scripting.FileSystemObject")
+strPath = FSO.GetParentFolderName(WScript.ScriptFullName)
 Set WshShell = CreateObject("WScript.Shell")
-WshShell.CurrentDirectory = "d:\PlayGround\Manga"
-WshShell.Run chr(34) & "d:\PlayGround\Manga\manga-tracker.exe" & chr(34), 0
+WshShell.CurrentDirectory = strPath
+WshShell.Run chr(34) & strPath & "\manga-tracker.exe" & chr(34), 0
 Set WshShell = Nothing
