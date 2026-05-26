@@ -24,8 +24,21 @@ oShellLink.Description = "Start Manga Tracker on Windows Startup"
 oShellLink.Save
 On Error GoTo 0
 
+' Unblock manga-tracker.exe (removes "downloaded from internet" flag that triggers SmartScreen)
+strExePath = strPath & "\manga-tracker.exe"
+WshShell.Run "powershell -Command ""Unblock-File -Path '" & strExePath & "'"" ", 0, True
+
 ' Run the manga-tracker.exe in hidden mode
-WshShell.Run chr(34) & strPath & "\manga-tracker.exe" & chr(34), 0
+On Error Resume Next
+WshShell.Run chr(34) & strExePath & chr(34), 0
+If Err.Number <> 0 Then
+    MsgBox "Failed to start Manga Tracker." & vbCrLf & vbCrLf & _
+           "This is usually caused by Windows SmartScreen blocking the file." & vbCrLf & _
+           "Try: Right-click manga-tracker.exe > Properties > check 'Unblock' > OK" & vbCrLf & vbCrLf & _
+           "Error: " & Err.Description, 16, "Manga Tracker"
+    WScript.Quit 1
+End If
+On Error GoTo 0
 
 ' Show success message only if run manually (without /silent flag)
 If Not isSilent Then
