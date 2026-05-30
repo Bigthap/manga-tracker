@@ -15,21 +15,13 @@ set "ZIP_FILE=%TEMP_DIR%\latest.zip"
 :: Step 1: Stop running server
 echo [1/5] Stopping Manga Tracker server...
 taskkill /IM manga-tracker.exe /F >nul 2>&1
-timeout /t 2 /nobreak >nul
+ping 127.0.0.1 -n 3 >nul 2>&1
 echo.
 
 :: Step 2: Get latest release download URL from GitHub API
 echo [2/5] Checking for latest release...
-powershell -Command ^
-    "$release = Invoke-RestMethod -Uri 'https://api.github.com/repos/%REPO%/releases/latest'; ^
-    $asset = $release.assets | Where-Object { $_.name -like '*.zip' } | Select-Object -First 1; ^
-    if ($asset) { ^
-        Write-Output $asset.browser_download_url; ^
-        Write-Output $release.tag_name ^
-    } else { ^
-        Write-Error 'No ZIP asset found in latest release'; ^
-        exit 1 ^
-    }" > "%TEMP_DIR%_info.txt" 2>&1
+if not exist "%TEMP_DIR%" mkdir "%TEMP_DIR%"
+powershell -NoProfile -Command "$ErrorActionPreference = 'Stop'; try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $release = Invoke-RestMethod -Uri 'https://api.github.com/repos/%REPO%/releases/latest'; $asset = $release.assets | Where-Object { $_.name -like '*.zip' } | Select-Object -First 1; if ($asset) { Write-Output $asset.browser_download_url; Write-Output $release.tag_name } else { throw 'No ZIP asset found in latest release' } } catch { Write-Error $_.Exception.Message; exit 1 }" > "%TEMP_DIR%_info.txt" 2>&1
 
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to fetch release info from GitHub.
@@ -51,11 +43,7 @@ echo.
 
 :: Step 3: Download the ZIP
 echo [3/5] Downloading %LATEST_VERSION%...
-if exist "%TEMP_DIR%" rmdir /S /Q "%TEMP_DIR%"
-mkdir "%TEMP_DIR%"
-
-powershell -Command ^
-    "Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile '%ZIP_FILE%' -UseBasicParsing"
+powershell -NoProfile -Command "$ErrorActionPreference = 'Stop'; try { Invoke-WebRequest -Uri '%DOWNLOAD_URL%' -OutFile '%ZIP_FILE%' -UseBasicParsing } catch { Write-Error $_.Exception.Message; exit 1 }"
 
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to download the release.
@@ -67,8 +55,7 @@ echo.
 
 :: Step 4: Extract and update files
 echo [4/5] Extracting and updating files...
-powershell -Command ^
-    "Expand-Archive -Path '%ZIP_FILE%' -DestinationPath '%TEMP_DIR%\extracted' -Force"
+powershell -NoProfile -Command "$ErrorActionPreference = 'Stop'; try { Expand-Archive -Path '%ZIP_FILE%' -DestinationPath '%TEMP_DIR%\extracted' -Force } catch { Write-Error $_.Exception.Message; exit 1 }"
 
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to extract the ZIP file.
@@ -78,7 +65,6 @@ if %errorlevel% neq 0 (
 )
 
 :: Copy files from extracted folder, preserving user data
-:: (config.json, manga_tracker.db, covers/ are NOT overwritten)
 set "SRC=%TEMP_DIR%\extracted"
 
 :: Handle nested folder structure (ZIP may contain a root folder)
