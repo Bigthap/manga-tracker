@@ -140,6 +140,27 @@ async function extractData() {
                 title = document.title.split('|')[0].trim();
             }
         }
+    } else if (hostname.includes("manga168plus.com")) {
+        // e.g. https://manga168plus.com/manga/one-piece/chapter/be586a7c-8d92-40f1-b3ec-09191eb83233/read
+        if (url.includes('/chapter/') && url.endsWith('/read')) {
+            const parts = url.split('/chapter/')[0].split('/');
+            slug = parts[parts.length - 1];
+            mainUrl = `${window.location.origin}/manga/${slug}`;
+            
+            const titleMatch = document.title.match(/(?:อ่าน|Read)?\s*(.*?)\s*(?:ตอนที่|Chapter|Ch\.|EP\.)\s*(\d+(?:\.\d+)?)/i);
+            if (titleMatch) {
+                title = titleMatch[1].trim();
+                chapter = titleMatch[2];
+            }
+            
+            const ogImg = document.querySelector('meta[property="og:image"]');
+            if (ogImg) {
+                imgUrl = ogImg.content;
+            }
+        } else if (url.includes('/manga/')) {
+            // Main page, don't track
+            return null;
+        }
     }
 
     // 1. URL Parse Fallback setup
